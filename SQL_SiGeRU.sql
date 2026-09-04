@@ -12,6 +12,7 @@ CREATE TABLE Rol (
     descripcion VARCHAR(255)
 );
 
+
 CREATE TABLE Usuarios (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
     id_rol INT NOT NULL,
@@ -19,7 +20,9 @@ CREATE TABLE Usuarios (
     apellido VARCHAR(100) NOT NULL,
     nombre VARCHAR(100) NOT NULL,
     estado VARCHAR(30) NOT NULL DEFAULT 'activo',
-    FOREIGN KEY (id_rol) REFERENCES Rol(id_rol)
+
+    FOREIGN KEY (id_rol)
+        REFERENCES Rol(id_rol)
 );
 
 CREATE TABLE Datos (
@@ -29,9 +32,12 @@ CREATE TABLE Datos (
     documento VARCHAR(30) NOT NULL UNIQUE,
     telefono VARCHAR(30),
     email VARCHAR(150) NOT NULL UNIQUE,
-    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario)
+
+    FOREIGN KEY (id_usuario)
+        REFERENCES Usuarios(id_usuario)
         ON DELETE CASCADE
 );
+
 
 CREATE TABLE Rec_Password (
     id_solicitud INT AUTO_INCREMENT PRIMARY KEY,
@@ -40,7 +46,9 @@ CREATE TABLE Rec_Password (
     codigo VARCHAR(100) NOT NULL,
     fecha_solicitud DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fecha_expiracion DATETIME,
-    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario)
+
+    FOREIGN KEY (id_usuario)
+        REFERENCES Usuarios(id_usuario)
         ON DELETE CASCADE
 );
 
@@ -61,50 +69,68 @@ CREATE TABLE Solicitudes_Acceso (
     fecha_solicitud DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fecha_resolucion DATETIME,
     id_supervisor_resuelve INT,
-    FOREIGN KEY (id_supervisor_resuelve) REFERENCES Usuarios(id_usuario)
+
+    FOREIGN KEY (id_supervisor_resuelve)
+        REFERENCES Usuarios(id_usuario)
 );
 
 -- 3. Perfiles y tipos de usuario
 
-
 CREATE TABLE Supervisor (
     id_usuario INT PRIMARY KEY,
     fecha_aprobacion DATETIME,
-    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario)
+
+    FOREIGN KEY (id_usuario)
+        REFERENCES Usuarios(id_usuario)
         ON DELETE CASCADE
 );
+
 
 CREATE TABLE Chofer (
     id_usuario INT PRIMARY KEY,
     fecha_aprobacion DATETIME,
     licencia VARCHAR(50) NOT NULL,
-    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario)
+
+    FOREIGN KEY (id_usuario)
+        REFERENCES Usuarios(id_usuario)
         ON DELETE CASCADE
 );
+
 
 CREATE TABLE Barrendero (
     id_usuario INT PRIMARY KEY,
     fecha_aprobacion DATETIME,
-    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario)
+
+    FOREIGN KEY (id_usuario)
+        REFERENCES Usuarios(id_usuario)
         ON DELETE CASCADE
 );
+
 
 CREATE TABLE Operario (
     id_usuario INT PRIMARY KEY,
     fecha_aprobacion DATETIME,
-    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario)
+
+    FOREIGN KEY (id_usuario)
+        REFERENCES Usuarios(id_usuario)
         ON DELETE CASCADE
 );
+
 
 CREATE TABLE Vecino (
     id_usuario INT PRIMARY KEY,
-    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario)
+
+    FOREIGN KEY (id_usuario)
+        REFERENCES Usuarios(id_usuario)
         ON DELETE CASCADE
 );
 
+
 CREATE TABLE Admin_Backoffice (
     id_usuario INT PRIMARY KEY,
-    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario)
+
+    FOREIGN KEY (id_usuario)
+        REFERENCES Usuarios(id_usuario)
         ON DELETE CASCADE
 );
 
@@ -130,18 +156,30 @@ CREATE TABLE Cuadrilla (
     turno VARCHAR(30),
     estado VARCHAR(30),
     ubicacion_actual VARCHAR(100),
-    FOREIGN KEY (id_responsable) REFERENCES Usuarios(id_usuario)
+
+    FOREIGN KEY (id_responsable)
+        REFERENCES Usuarios(id_usuario)
 );
+
 
 CREATE TABLE Cuadrilla_Integrantes (
     id_cuadrilla VARCHAR(20),
     id_usuario INT,
     fecha_asignacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fecha_finalizacion DATETIME,
-    PRIMARY KEY (id_cuadrilla, id_usuario, fecha_asignacion),
-    FOREIGN KEY (id_cuadrilla) REFERENCES Cuadrilla(id_cuadrilla)
+
+    PRIMARY KEY (
+        id_cuadrilla,
+        id_usuario,
+        fecha_asignacion
+    ),
+
+    FOREIGN KEY (id_cuadrilla)
+        REFERENCES Cuadrilla(id_cuadrilla)
         ON DELETE CASCADE,
-    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario)
+
+    FOREIGN KEY (id_usuario)
+        REFERENCES Usuarios(id_usuario)
         ON DELETE CASCADE
 );
 
@@ -167,11 +205,22 @@ CREATE TABLE Cuadrilla_Rutas (
     fecha_asignacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fecha_finalizacion DATETIME,
     estado VARCHAR(30) NOT NULL DEFAULT 'Asignada',
-    FOREIGN KEY (id_cuadrilla) REFERENCES Cuadrilla(id_cuadrilla),
-    FOREIGN KEY (id_ruta) REFERENCES Rutas(id_ruta)
+
+    FOREIGN KEY (id_cuadrilla)
+        REFERENCES Cuadrilla(id_cuadrilla),
+
+    FOREIGN KEY (id_ruta)
+        REFERENCES Rutas(id_ruta)
 );
 
--- 8. Camiones
+-- 8. Tipo de residuos
+
+CREATE TABLE Tipo_Residuo (
+    tipo VARCHAR(30) PRIMARY KEY,
+    descripcion VARCHAR(255)
+);
+
+-- 9. Camiones
 
 CREATE TABLE Camiones (
     id_camion INT AUTO_INCREMENT PRIMARY KEY,
@@ -195,12 +244,22 @@ CREATE TABLE Camiones (
     id_chofer INT,
     id_cuadrilla VARCHAR(20),
     id_ruta INT,
-    FOREIGN KEY (id_chofer) REFERENCES Chofer(id_usuario),
-    FOREIGN KEY (id_cuadrilla) REFERENCES Cuadrilla(id_cuadrilla),
-    FOREIGN KEY (id_ruta) REFERENCES Rutas(id_ruta)
+
+    FOREIGN KEY (tipo)
+        REFERENCES Tipo_Residuo(tipo),
+
+    FOREIGN KEY (id_chofer)
+        REFERENCES Chofer(id_usuario),
+
+    FOREIGN KEY (id_cuadrilla)
+        REFERENCES Cuadrilla(id_cuadrilla),
+
+    FOREIGN KEY (id_ruta)
+        REFERENCES Rutas(id_ruta)
 );
 
--- 9. Guarda cambios de asignaciones del camión
+-- 10. Guarda cambios de asignaciones del camión
+
 
 CREATE TABLE Camion_Asignaciones (
     id_asignacion INT AUTO_INCREMENT PRIMARY KEY,
@@ -211,14 +270,22 @@ CREATE TABLE Camion_Asignaciones (
     fecha_asignacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fecha_finalizacion DATETIME,
     estado VARCHAR(30),
-    FOREIGN KEY (id_camion) REFERENCES Camiones(id_camion)
+
+    FOREIGN KEY (id_camion)
+        REFERENCES Camiones(id_camion)
         ON DELETE CASCADE,
-    FOREIGN KEY (id_chofer) REFERENCES Chofer(id_usuario),
-    FOREIGN KEY (id_cuadrilla) REFERENCES Cuadrilla(id_cuadrilla),
-    FOREIGN KEY (id_ruta) REFERENCES Rutas(id_ruta)
+
+    FOREIGN KEY (id_chofer)
+        REFERENCES Chofer(id_usuario),
+
+    FOREIGN KEY (id_cuadrilla)
+        REFERENCES Cuadrilla(id_cuadrilla),
+
+    FOREIGN KEY (id_ruta)
+        REFERENCES Rutas(id_ruta)
 );
 
--- 10. Contenedores
+-- 11. Contenedores
 
 CREATE TABLE Contenedores (
     id_contenedor INT AUTO_INCREMENT PRIMARY KEY,
@@ -232,8 +299,17 @@ CREATE TABLE Contenedores (
     circuito VARCHAR(30),
     ultimo_registro DATE,
     activo BOOLEAN NOT NULL DEFAULT TRUE,
-    FOREIGN KEY (id_ubicacion) REFERENCES Ubicacion(id_ubicacion)
+
+    FOREIGN KEY (id_ubicacion)
+        REFERENCES Ubicacion(id_ubicacion),
+
+    FOREIGN KEY (circuito)
+        REFERENCES Rutas(circuito),
+
+    FOREIGN KEY (tipo)
+        REFERENCES Tipo_Residuo(tipo)
 );
+
 
 CREATE TABLE Historial_Contenedores (
     id_historial INT AUTO_INCREMENT PRIMARY KEY,
@@ -244,13 +320,19 @@ CREATE TABLE Historial_Contenedores (
     id_ubicacion_anterior INT,
     id_ubicacion_nueva INT,
     motivo VARCHAR(255),
-    FOREIGN KEY (id_contenedor) REFERENCES Contenedores(id_contenedor)
+
+    FOREIGN KEY (id_contenedor)
+        REFERENCES Contenedores(id_contenedor)
         ON DELETE CASCADE,
-    FOREIGN KEY (id_ubicacion_anterior) REFERENCES Ubicacion(id_ubicacion),
-    FOREIGN KEY (id_ubicacion_nueva) REFERENCES Ubicacion(id_ubicacion)
+
+    FOREIGN KEY (id_ubicacion_anterior)
+        REFERENCES Ubicacion(id_ubicacion),
+
+    FOREIGN KEY (id_ubicacion_nueva)
+        REFERENCES Ubicacion(id_ubicacion)
 );
 
--- 11. Incidencias
+-- 12. Incidencias
 
 CREATE TABLE Incidencias (
     id_incidencia INT AUTO_INCREMENT PRIMARY KEY,
@@ -265,12 +347,18 @@ CREATE TABLE Incidencias (
     responsable VARCHAR(150),
     resolucion TEXT,
     id_cuadrilla VARCHAR(20),
-    FOREIGN KEY (id_camion) REFERENCES Camiones(id_camion),
-    FOREIGN KEY (id_contenedor) REFERENCES Contenedores(id_contenedor),
-    FOREIGN KEY (id_cuadrilla) REFERENCES Cuadrilla(id_cuadrilla)
+
+    FOREIGN KEY (id_camion)
+        REFERENCES Camiones(id_camion),
+
+    FOREIGN KEY (id_contenedor)
+        REFERENCES Contenedores(id_contenedor),
+
+    FOREIGN KEY (id_cuadrilla)
+        REFERENCES Cuadrilla(id_cuadrilla)
 );
 
--- 12. Reclamos Vecinos
+-- 13. Reclamos Vecinos
 
 CREATE TABLE Reclamos (
     id_reclamo VARCHAR(30) PRIMARY KEY,
@@ -289,36 +377,73 @@ CREATE TABLE Reclamos (
     id_contenedor INT,
     fecha_reporte DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fecha_finalizacion DATETIME,
-    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
-    FOREIGN KEY (id_cuadrilla) REFERENCES Cuadrilla(id_cuadrilla),
-    FOREIGN KEY (id_contenedor) REFERENCES Contenedores(id_contenedor)
+
+    FOREIGN KEY (id_usuario)
+        REFERENCES Usuarios(id_usuario),
+
+    FOREIGN KEY (id_cuadrilla)
+        REFERENCES Cuadrilla(id_cuadrilla),
+
+    FOREIGN KEY (id_contenedor)
+        REFERENCES Contenedores(id_contenedor)
 );
 
-
--- 13. Instalaciones
+-- 14. Instalaciones
 
 CREATE TABLE Instalaciones (
     id_instalacion INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     tipo VARCHAR(50) NOT NULL,
-    capacidad DECIMAL(10,2),
-    capacidad_actual VARCHAR(50),
+    capacidad DECIMAL(10,2) NOT NULL,
+    capacidad_actual DECIMAL(10,2) NOT NULL DEFAULT 0,
+    unidad_capacidad VARCHAR(20) NOT NULL DEFAULT 'porcentaje',
     estado VARCHAR(30) NOT NULL,
     id_ubicacion INT,
-    FOREIGN KEY (id_ubicacion) REFERENCES Ubicacion(id_ubicacion)
+
+    FOREIGN KEY (id_ubicacion)
+        REFERENCES Ubicacion(id_ubicacion),
+
+    CHECK (
+        capacidad > 0
+        AND capacidad_actual >= 0
+        AND capacidad_actual <= capacidad
+    )
+);
+
+CREATE TABLE Instalacion_Tipo_Residuo (
+    id_instalacion INT NOT NULL,
+    tipo VARCHAR(30) NOT NULL,
+
+    PRIMARY KEY (
+        id_instalacion,
+        tipo
+    ),
+
+    FOREIGN KEY (id_instalacion)
+        REFERENCES Instalaciones(id_instalacion)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (tipo)
+        REFERENCES Tipo_Residuo(tipo)
 );
 
 CREATE TABLE Instalacion_Operario (
-    id_usuario INT,
-    id_instalacion INT,
+    id_asignacion INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    id_instalacion INT NOT NULL,
     fecha_asignacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id_usuario, id_instalacion),
-    FOREIGN KEY (id_usuario) REFERENCES Operario(id_usuario),
-    FOREIGN KEY (id_instalacion) REFERENCES Instalaciones(id_instalacion)
+    fecha_finalizacion DATETIME,
+
+    FOREIGN KEY (id_usuario)
+        REFERENCES Operario(id_usuario),
+
+    FOREIGN KEY (id_instalacion)
+        REFERENCES Instalaciones(id_instalacion)
         ON DELETE CASCADE
 );
 
--- 14. Inventario
+
+-- 15. Inventario
 
 CREATE TABLE Inventario (
     id_inventario INT AUTO_INCREMENT PRIMARY KEY,
@@ -327,11 +452,13 @@ CREATE TABLE Inventario (
     estado VARCHAR(30),
     tipo VARCHAR(50),
     cantidad INT NOT NULL DEFAULT 0,
-    FOREIGN KEY (id_instalacion) REFERENCES Instalaciones(id_instalacion)
+
+    FOREIGN KEY (id_instalacion)
+        REFERENCES Instalaciones(id_instalacion)
         ON DELETE CASCADE
 );
 
--- 15. Tareas
+-- 16. Tareas
 
 CREATE TABLE Tareas (
     id_tarea INT AUTO_INCREMENT PRIMARY KEY,
@@ -341,11 +468,15 @@ CREATE TABLE Tareas (
     fecha_finalizacion DATETIME,
     id_cuadrilla VARCHAR(20),
     id_supervisor INT,
-    FOREIGN KEY (id_cuadrilla) REFERENCES Cuadrilla(id_cuadrilla),
-    FOREIGN KEY (id_supervisor) REFERENCES Supervisor(id_usuario)
+
+    FOREIGN KEY (id_cuadrilla)
+        REFERENCES Cuadrilla(id_cuadrilla),
+
+    FOREIGN KEY (id_supervisor)
+        REFERENCES Supervisor(id_usuario)
 );
 
--- 16. Recolecciones
+-- 17. Recolecciones
 
 CREATE TABLE Recolecciones (
     id_recoleccion INT AUTO_INCREMENT PRIMARY KEY,
@@ -354,26 +485,47 @@ CREATE TABLE Recolecciones (
     id_cuadrilla VARCHAR(20),
     fecha_inicio DATETIME,
     fecha_fin DATETIME,
+
+    tipo VARCHAR(30) NOT NULL,
+
     volumen_recolectado DECIMAL(10,2),
     peso_recolectado_kg DECIMAL(10,2),
     contenedores_recolectados INT DEFAULT 0,
     estado VARCHAR(30),
-    FOREIGN KEY (id_camion) REFERENCES Camiones(id_camion),
-    FOREIGN KEY (id_ruta) REFERENCES Rutas(id_ruta),
-    FOREIGN KEY (id_cuadrilla) REFERENCES Cuadrilla(id_cuadrilla)
+
+    FOREIGN KEY (id_camion)
+        REFERENCES Camiones(id_camion),
+
+    FOREIGN KEY (id_ruta)
+        REFERENCES Rutas(id_ruta),
+
+    FOREIGN KEY (id_cuadrilla)
+        REFERENCES Cuadrilla(id_cuadrilla),
+
+    FOREIGN KEY (tipo)
+        REFERENCES Tipo_Residuo(tipo)
 );
+
 
 CREATE TABLE Recoleccion_Contenedor (
     id_recoleccion INT,
     id_contenedor INT,
     fecha DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id_recoleccion, id_contenedor),
-    FOREIGN KEY (id_recoleccion) REFERENCES Recolecciones(id_recoleccion)
+
+    PRIMARY KEY (
+        id_recoleccion,
+        id_contenedor
+    ),
+
+    FOREIGN KEY (id_recoleccion)
+        REFERENCES Recolecciones(id_recoleccion)
         ON DELETE CASCADE,
-    FOREIGN KEY (id_contenedor) REFERENCES Contenedores(id_contenedor)
+
+    FOREIGN KEY (id_contenedor)
+        REFERENCES Contenedores(id_contenedor)
 );
 
--- 17. Mantenimiento de camiones
+-- 18. Mantenimiento de camiones
 
 CREATE TABLE Mantenimientos (
     id_mantenimiento INT AUTO_INCREMENT PRIMARY KEY,
@@ -385,11 +537,13 @@ CREATE TABLE Mantenimientos (
     tipo VARCHAR(50),
     costo DECIMAL(10,2),
     responsable VARCHAR(150),
-    FOREIGN KEY (id_camion) REFERENCES Camiones(id_camion)
+
+    FOREIGN KEY (id_camion)
+        REFERENCES Camiones(id_camion)
         ON DELETE CASCADE
 );
 
--- 18. Insertar roles básicos de la página
+-- 19. Insertar datos básicos de la página
 
 INSERT INTO Rol (nombre, descripcion) VALUES
 ('administrador', 'Administración y supervisión general del sistema'),
@@ -399,3 +553,9 @@ INSERT INTO Rol (nombre, descripcion) VALUES
 ('barrendero', 'Personal de limpieza urbana'),
 ('operario', 'Operación de instalaciones'),
 ('vecino', 'Usuario vecino del sistema');
+
+
+INSERT INTO Tipo_Residuo (tipo, descripcion) VALUES
+('general', 'Residuos urbanos generales'),
+('reciclaje', 'Materiales reciclables'),
+('mixto', 'Residuos generales y reciclables');
