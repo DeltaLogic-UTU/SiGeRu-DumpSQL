@@ -1,0 +1,89 @@
+name: sigeru
+
+services:
+  db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?Configurar contraseña}
+      MARIADB_DATABASE: sigeru
+      MARIADB_USER: sigeru_app
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:?Configurar contraseña}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  usuarios:
+    build:
+      context: ../aplicaciones/SiGeRu-API-Usuarios
+      dockerfile: ../../docker/laravel/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../aplicaciones/SiGeRu-API-Usuarios/.env
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_DATABASE: sigeru
+      DB_USERNAME: sigeru_app
+      DB_PASSWORD: ${MARIADB_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  gestion:
+    build:
+      context: ../aplicaciones/SiGeRu-API-Gestion
+      dockerfile: ../../docker/laravel/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    env_file:
+      - ../aplicaciones/SiGeRu-API-Gestion/.env
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_DATABASE: sigeru
+      DB_USERNAME: sigeru_app
+      DB_PASSWORD: ${MARIADB_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  recoleccion:
+    build:
+      context: ../aplicaciones/SiGeRu-API-Recoleccion
+      dockerfile: ../../docker/laravel/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8002:8000"
+    env_file:
+      - ../aplicaciones/SiGeRu-API-Recoleccion/.env
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_DATABASE: sigeru
+      DB_USERNAME: sigeru_app
+      DB_PASSWORD: ${MARIADB_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ../aplicaciones/SiGeRu-Website
+      dockerfile: ../../docker/frontend/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+
+volumes:
+  mariadb_data:
