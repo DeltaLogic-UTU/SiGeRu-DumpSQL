@@ -1,0 +1,68 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: sigeru-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: sigeru
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./SiGeRu-DumpSQL/sigeru_actualizada.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - sigeru-net
+
+  api-usuarios:
+    build: ./SiGeRu-API-Usuarios
+    container_name: sigeru-api-usuarios
+    restart: always
+    ports:
+      - "8000:80"
+    depends_on:
+      - db
+    networks:
+      - sigeru-net
+
+  api-gestion:
+    build: ./SiGeRu-API-Gestion
+    container_name: sigeru-api-gestion
+    restart: always
+    ports:
+      - "8001:80"
+    depends_on:
+      - db
+    networks:
+      - sigeru-net
+
+  api-recoleccion:
+    build: ./SiGeRU-API-Recoleccion
+    container_name: sigeru-api-recoleccion
+    restart: always
+    ports:
+      - "8002:80"
+    depends_on:
+      - db
+    networks:
+      - sigeru-net
+
+  website:
+    build: ./SiGeRu-Website
+    container_name: sigeru-website
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - api-usuarios
+      - api-gestion
+      - api-recoleccion
+    networks:
+      - sigeru-net
+
+networks:
+  sigeru-net:
+    driver: bridge
+
+volumes:
+  mysql_data:
