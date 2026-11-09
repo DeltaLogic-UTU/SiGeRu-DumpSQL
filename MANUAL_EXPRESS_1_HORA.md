@@ -4,14 +4,17 @@ Esta guía resume las **46 páginas del Manual de Instalación** en pasos rápid
 
 ---
 
-## PASO 0: Conectarse por SSH desde Windows (PowerShell)
+## PASO 0: Reenvío de Puertos en VirtualBox y Conexión SSH
 
-1. Averiguar usuario e IP en la VM Linux:
-   ```bash
-   whoami
-   ip -4 addr
-   ```
-2. Entrar desde PowerShell (Windows):
+1. **En VirtualBox** (`Máquina -> Configuración -> Red -> Adaptador 1 (NAT) -> Avanzadas -> Reenvío de puertos`), verificar que estén estas reglas:
+   - `SSH`: TCP | Anfitrión `2222` -> Invitado `22`
+   - `Web-8080`: TCP | Anfitrión `8080` -> Invitado `8080`
+   - `Web`: TCP | Anfitrión `80` -> Invitado `80`
+   - `API-Usuarios`: TCP | Anfitrión `8000` -> Invitado `8000`
+   - `API-Gestion`: TCP | Anfitrión `8001` -> Invitado `8001`
+   - `API-Recoleccion`: TCP | Anfitrión `8002` -> Invitado `8002`
+
+2. **Entrar por SSH desde PowerShell (Windows)**:
    - Si usás **NAT con reenvío de puertos** (2222 -> 22):
      ```powershell
      ssh -p 2222 sigeru@127.0.0.1
@@ -135,8 +138,11 @@ sudo docker compose ps
 ```bash
 sudo firewall-cmd --permanent --add-service=ssh
 sudo firewall-cmd --permanent --add-port=8080/tcp
+sudo firewall-cmd --permanent --add-port=80/tcp
 sudo firewall-cmd --permanent --add-port=8000-8002/tcp
+sudo firewall-cmd --permanent --add-masquerade
 sudo firewall-cmd --reload
+sudo systemctl restart docker
 sudo firewall-cmd --list-ports
 ```
 
